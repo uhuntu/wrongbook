@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: wrongbook
+      POSTGRES_USER: wrongbook
+      POSTGRES_PASSWORD: wrongbook
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://wrongbook:wrongbook@db:5432/wrongbook
+    depends_on:
+      - db
+    volumes:
+      - ./backend/app:/app/app
+      - ./uploads:/uploads
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend/app:/app/app
+    ports:
+      - "3000:3000"
+
+volumes:
+  postgres_data:
